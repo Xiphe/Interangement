@@ -1,0 +1,17 @@
+{
+  "name": "Kaleidos Chaos Arrangements",
+  "version": "0.0.0",
+  "main": "index.html",
+  "dependencies": {
+    "bootstrap": "~2.3",
+    "jquery": "~2",
+    "underscore": "~1.5"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "kc-arrangements",
+  "version": "0.0.0",
+  "description": "Library of Arrangements from the band Kaleidos Chaos",
+  "main": "Gruntfile.js",
+  "dependencies": {
+    "grunt": "~0.4.1"
+  },
+  "devDependencies": {
+    "grunt-contrib-uglify": "~0.2.5",
+    "grunt-contrib-jshint": "~0.7.1",
+    "grunt-contrib-qunit": "~0.3.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-shell": "~0.5.0",
+    "grunt-bower-task": "~0.3.2"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "author": "Hannes Diercks <diem@kaleidos-chaos.de>",
+  "license": "BSD-2-Clause"
+}
