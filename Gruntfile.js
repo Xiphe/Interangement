@@ -5,15 +5,19 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
+    customcomponentsdir: 'components',
+    bowerdir: 'bower_components',
+    npmdir: 'node_modules',
+
     vexflowrepo: 'git@github.com:0xfe/vexflow.git',
     vextabrepo: 'git@github.com:0xfe/vextab.git',
-    vexdir: 'components',
-    tabdir: '<%= vexdir %>/vextab',
-    flowdir: '<%= vexdir %>/vexflow',
+    tabdir: '<%= customcomponentsdir %>/vextab',
+    flowdir: '<%= customcomponentsdir %>/vexflow',
     minbanner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
 
     fixVexTabNpmCoffee: 'ln -s ../../../../node_modules/coffee-script/bin/coffee <%= tabdir %>/node_modules/.bin/coffee',
     fixVexTabNpmJison: 'ln -s ../../../../node_modules/jison/lib/cli.js <%= tabdir %>/node_modules/.bin/jison',
+
 
     bower: {
       target: {
@@ -82,23 +86,13 @@ module.exports = function(grunt) {
       },
     },
 
-    qunit: {
-      files: ['test/**/*.html']
-    },
-    jshint: {
-      files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
-      options: {
-        // options here to override JSHint defaults
-        globals: {
-          jQuery: true,
-          console: true,
-          module: true,
-          document: true
-        }
-      }
-    },
-
     shell: {
+      removeComponents: {
+        options: {
+          stdout: true
+        },
+        command: 'rm -rf <%= customcomponentsdir %>; rm -rf <%= npmdir %>; rm -rf <%= bowerdir %>'
+      },
       bowerGetComponents: {
         options: {
           callback: function log(err, stdout, stderr, cb) {
@@ -114,22 +108,24 @@ module.exports = function(grunt) {
         },
         command: 'bower update'
       },
-
-      vextabInstallNpm: {
+      npmInstall: {
+        options: {
+          stdout: true
+        },
+        command: 'npm install'
+      },
+      getVex: {
+        options: {
+          stdout: true
+        },
+        command: 'mkdir <%= customcomponentsdir %>; cd <%= customcomponentsdir %>; git clone <%= vexflowrepo %>; git clone <%= vextabrepo %>;'
+      },
+      vextabFakeNpm: {
         options: {
           stdout: true
         },
         command: 'npm install jison coffee-script; mkdir -p <%= tabdir %>/node_modules/.bin; <%= fixVexTabNpmCoffee %>; <%= fixVexTabNpmJison %>'
       },
-
-
-      getVex: {
-        options: {
-          stdout: true
-        },
-        command: 'mkdir <%= vexdir %>; cd <%= vexdir %>; git clone <%= vexflowrepo %>; git clone <%= vextabrepo %>;'
-      },
-
       updateVextab: {
         options: {
           stdout: true
@@ -159,7 +155,6 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-shell');
-  // grunt.loadNpmTasks('grunt-bower-requirejs');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -168,14 +163,15 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
 
 
-  grunt.registerTask('buildVextab', ['shell:vextabInstallNpm', 'shell:buildVextab']);
-  grunt.registerTask('initcomponents', ['shell:bowerInstall', 'shell:getVex', 'shell:buildVexflow', 'buildVextab']);
+  grunt.registerTask('removeComponents', ['shell:removeComponents']);
 
+  grunt.registerTask('buildVextab', ['shell:vextabFakeNpm', 'shell:buildVextab']);
   grunt.registerTask('updateVextab', ['shell:updateVextab', 'buildVextab']);
   grunt.registerTask('updateVexflow', ['shell:updateVexflow', 'shell:buildVexflow']);
   grunt.registerTask('updateVex', ['updatevextab', 'updatevexflow']);
 
-  grunt.registerTask('test', ['jshint', 'qunit']);
+  grunt.registerTask('bootstrap', ['shell:bowerInstall', 'shell:getVex', 'shell:buildVexflow', 'buildVextab', 'default']);
+  grunt.registerTask('reset', ['removeComponents', 'shell:npmInstall', 'bootstrap']);
 
   grunt.registerTask('default', ['shell:bowerGetComponents', 'concat', 'uglify', 'cssmin']);
 

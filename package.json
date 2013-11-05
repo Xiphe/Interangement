@@ -1,8 +1,10 @@
 {
-  "name": "kc-arrangements",
-  "version": "0.0.0",
-  "description": "Library of Arrangements from the band Kaleidos Chaos",
-  "main": "Gruntfile.js",
+  "name": "interangement",
+  "version": "0.0.1",
+  "description": "Bring some programming magic to music notation.",
+  "repository": "git@github.com:Xiphe/Interangement.git",
+  "readme": "README.md"
+  "main": "index.html",
   "dependencies": {
     "grunt": "~0.4.1",
     "markdown": "~0.5"
@@ -17,8 +19,11 @@
     "grunt-contrib-cssmin": "~0.6.2"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "bootstrap": "grunt bootstrap",
+    "reset": "grunt reset",
+    "watch": "grunt watch"
   },
   "author": "Hannes Diercks <diem@kaleidos-chaos.de>",
-  "license": "BSD-2-Clause"
+  "license": "MIT"
 }
