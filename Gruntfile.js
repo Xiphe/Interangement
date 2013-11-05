@@ -8,6 +8,7 @@ module.exports = function(grunt) {
     customcomponentsdir: 'components',
     bowerdir: 'bower_components',
     npmdir: 'node_modules',
+    distdir: 'dist',
 
     vexflowrepo: 'git@github.com:0xfe/vexflow.git',
     vextabrepo: 'git@github.com:0xfe/vextab.git',
@@ -18,39 +19,31 @@ module.exports = function(grunt) {
     fixVexTabNpmCoffee: 'ln -s ../../../../node_modules/coffee-script/bin/coffee <%= tabdir %>/node_modules/.bin/coffee',
     fixVexTabNpmJison: 'ln -s ../../../../node_modules/jison/lib/cli.js <%= tabdir %>/node_modules/.bin/jison',
 
-
-    bower: {
-      target: {
-        rjsConfig: 'dist/config.js'
-      }
-    },
-
     concat: {
       js: {
         options: {
           separator: ';'
         },
         src: [
-          '<%= bowerComponents.requirejs %>/require.js',
           '<%= bowerComponents.jquery %>',
           '<%= bowerComponents.underscore %>/underscore.js',
           '<%= bowerComponents.bootstrap[0] %>',
           '<%= bowerComponents.raphael %>/raphael.js',
-          '<%= flowdir %>/build/vexflow/*.js',
+          '<%= flowdir %>/build/vexflow/vexflow-min.js',
           '<%= tabdir %>/build/tabdiv-min.js',
           'node_modules/markdown/lib/markdown.js',
           'js/jquery.bridge.js',
           'js/jquery.interangement.js',
           'js/init.js'
         ],
-        dest: 'dist/<%= pkg.name %>.js'
+        dest: '<%= distdir %>/<%= pkg.name %>.js'
       },
       css: {
         src: [
           '<%= bowerComponents.bootstrap[1] %>',
           'css/style.css'
         ],
-        dest: 'dist/<%= pkg.name %>.css'
+        dest: '<%= distdir %>/<%= pkg.name %>.css'
       }
     },
 
@@ -60,7 +53,7 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'dist/<%= pkg.name %>.min.js': ['<%= concat.js.dest %>'],
+          '<%= distdir %>/<%= pkg.name %>.min.js': ['<%= concat.js.dest %>'],
         }
       }
     },
@@ -71,7 +64,7 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'dist/<%= pkg.name %>.min.css': ['<%= concat.css.dest %>'],
+          '<%= distdir %>/<%= pkg.name %>.min.css': ['<%= concat.css.dest %>'],
         }
       }
     },
@@ -91,7 +84,7 @@ module.exports = function(grunt) {
         options: {
           stdout: true
         },
-        command: 'rm -rf <%= customcomponentsdir %>; rm -rf <%= npmdir %>; rm -rf <%= bowerdir %>'
+        command: 'rm -rf <%= customcomponentsdir %>; rm -rf <%= npmdir %>; rm -rf <%= bowerdir %>; rm -rf <%= distdir %>'
       },
       bowerGetComponents: {
         options: {

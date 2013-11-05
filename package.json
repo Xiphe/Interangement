@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Bring some programming magic to music notation.",
   "repository": "git@github.com:Xiphe/Interangement.git",
-  "readme": "README.md"
+  "readme": "README.md",
   "main": "index.html",
   "dependencies": {
     "grunt": "~0.4.1",
