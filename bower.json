@@ -1,6 +1,6 @@
 {
-  "name": "Kaleidos Chaos Arrangements",
-  "version": "0.0.0",
+  "name": "Interangement",
+  "version": "0.0.1",
   "main": "index.html",
   "dependencies": {
     "bootstrap": "~3",
