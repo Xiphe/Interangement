@@ -3,9 +3,10 @@
   "version": "0.0.0",
   "main": "index.html",
   "dependencies": {
-    "bootstrap": "~2.3",
-    "jquery": "~2",
-    "underscore": "~1.5"
+    "bootstrap": "~3",
+    "jquery": "~1",
+    "underscore": "~1",
+    "raphael": "1.4"
   },
   "ignore": [
     "**/.*",

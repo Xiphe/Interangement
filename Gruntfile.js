@@ -4,45 +4,84 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+
+    vexflowrepo: 'git@github.com:0xfe/vexflow.git',
+    vextabrepo: 'git@github.com:0xfe/vextab.git',
+    vexdir: 'components',
+    tabdir: '<%= vexdir %>/vextab',
+    flowdir: '<%= vexdir %>/vexflow',
+    minbanner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
+
+    fixVexTabNpmCoffee: 'ln -s ../../../../node_modules/coffee-script/bin/coffee <%= tabdir %>/node_modules/.bin/coffee',
+    fixVexTabNpmJison: 'ln -s ../../../../node_modules/jison/lib/cli.js <%= tabdir %>/node_modules/.bin/jison',
+
     bower: {
-      install: {
-        options: {
-          targetDir: './lib',
-          layout: 'byType',
-          install: true,
-          verbose: false,
-          cleanTargetDir: true,
-          cleanBowerDir: true
-        }
+      target: {
+        rjsConfig: 'dist/config.js'
       }
     },
 
     concat: {
-      options: {
-        separator: ';'
-      },
-      dist: {
+      js: {
+        options: {
+          separator: ';'
+        },
         src: [
-          'lib/jquery/*.js',
-          'lib/underscore/*.js',
-          'lib/bootstrap/*.js',
-          'lib/vexflow/build/vexflow/*.js',
-          'lib/vextab/build/tabdiv-min.js'
-
+          '<%= bowerComponents.requirejs %>/require.js',
+          '<%= bowerComponents.jquery %>',
+          '<%= bowerComponents.underscore %>/underscore.js',
+          '<%= bowerComponents.bootstrap[0] %>',
+          '<%= bowerComponents.raphael %>/raphael.js',
+          '<%= flowdir %>/build/vexflow/*.js',
+          '<%= tabdir %>/build/tabdiv-min.js',
+          'node_modules/markdown/lib/markdown.js',
+          'js/jquery.bridge.js',
+          'js/jquery.interangement.js',
+          'js/init.js'
         ],
         dest: 'dist/<%= pkg.name %>.js'
+      },
+      css: {
+        src: [
+          '<%= bowerComponents.bootstrap[1] %>',
+          'css/style.css'
+        ],
+        dest: 'dist/<%= pkg.name %>.css'
       }
     },
+
     uglify: {
       options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+        banner: '<%= minbanner %>'
       },
       dist: {
         files: {
-          'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
+          'dist/<%= pkg.name %>.min.js': ['<%= concat.js.dest %>'],
         }
       }
     },
+
+    cssmin: {
+      options: {
+        banner: '<%= minbanner %>'
+      },
+      dist: {
+        files: {
+          'dist/<%= pkg.name %>.min.css': ['<%= concat.css.dest %>'],
+        }
+      }
+    },
+
+    watch: {
+      scripts: {
+        files: ['js/*.js', 'css/*.css'],
+        tasks: ['shell:bowerGetComponents', 'concat'],
+        options: {
+          spawn: false,
+        },
+      },
+    },
+
     qunit: {
       files: ['test/**/*.html']
     },
@@ -58,57 +97,86 @@ module.exports = function(grunt) {
         }
       }
     },
+
     shell: {
-      getvex: {
-        options: {                        // Options
-            stdout: true
+      bowerGetComponents: {
+        options: {
+          callback: function log(err, stdout, stderr, cb) {
+            grunt.config('bowerComponents', JSON.parse(stdout));
+            cb();
+          }
         },
-        command: 'mkdir lib; cd lib; git clone git@github.com:0xfe/vexflow.git; git clone git@github.com:0xfe/vextab.git; cd ..'
+        command: 'bower list -p'
       },
-      updatevextab: {
-        options: {                        // Options
-            stdout: true
+      bowerInstall: {
+        options: {
+          stdout: true
         },
-        command: 'cd lib/vextab; git pull; cd ../..'
+        command: 'bower update'
       },
-      updatevexflow: {
-        options: {                        // Options
-            stdout: true
+
+      vextabInstallNpm: {
+        options: {
+          stdout: true
         },
-        command: 'cd lib/vexflow; git pull; cd ../..'
+        command: 'npm install jison coffee-script; mkdir -p <%= tabdir %>/node_modules/.bin; <%= fixVexTabNpmCoffee %>; <%= fixVexTabNpmJison %>'
       },
-      buildvextab: {
-        options: {                        // Options
-            stdout: true
+
+
+      getVex: {
+        options: {
+          stdout: true
         },
-        command: 'cd lib/vextab; bundle install; rake; cd ../..'
+        command: 'mkdir <%= vexdir %>; cd <%= vexdir %>; git clone <%= vexflowrepo %>; git clone <%= vextabrepo %>;'
       },
-      buildvexflow: {
-        options: {                        // Options
-            stdout: true
+
+      updateVextab: {
+        options: {
+          stdout: true
         },
-        command: 'cd lib/vexflow; bundle install; rake; cd ../..'
+        command: 'cd <%= tabdir %>; git pull;'
+      },
+      updateVexflow: {
+        options: {
+          stdout: true
+        },
+        command: 'cd <%= flowdir %>; git pull;'
+      },
+      buildVextab: {
+        options: {
+          stdout: true
+        },
+        command: 'cd <%= tabdir %>; bundle install; rake;'
+      },
+      buildVexflow: {
+        options: {
+          stdout: true
+        },
+        command: 'cd <%= flowdir %>; bundle install; rake;'
       }
     }
     
   });
 
   grunt.loadNpmTasks('grunt-shell');
-  grunt.loadNpmTasks('grunt-bower-task');
+  // grunt.loadNpmTasks('grunt-bower-requirejs');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
 
-  grunt.registerTask('initcomponents', ['bower:install', 'shell:getvex', 'shell:buildvextab', 'shell:buildvexflow']);
 
-  grunt.registerTask('updatevextab', ['shell:updatevextab', 'shell:buildvextab']);
-  grunt.registerTask('updatevexflow', ['shell:updatevexflow', 'shell:buildvexflow']);
-  grunt.registerTask('updatevex', ['updatevextab', 'updatevexflow']);
+  grunt.registerTask('buildVextab', ['shell:vextabInstallNpm', 'shell:buildVextab']);
+  grunt.registerTask('initcomponents', ['shell:bowerInstall', 'shell:getVex', 'shell:buildVexflow', 'buildVextab']);
+
+  grunt.registerTask('updateVextab', ['shell:updateVextab', 'buildVextab']);
+  grunt.registerTask('updateVexflow', ['shell:updateVexflow', 'shell:buildVexflow']);
+  grunt.registerTask('updateVex', ['updatevextab', 'updatevexflow']);
 
   grunt.registerTask('test', ['jshint', 'qunit']);
 
-  grunt.registerTask('default', ['concat', 'uglify']);
+  grunt.registerTask('default', ['shell:bowerGetComponents', 'concat', 'uglify', 'cssmin']);
 
 };

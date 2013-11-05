@@ -1,3 +1,5 @@
 node_modules/
-lib/
+bower_components/
+components/
+arrangements/
 sftp-config.json
